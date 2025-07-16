@@ -1,0 +1,23 @@
+name: My SECOND Workflow
+
+on: push
+
+jobs:
+  first_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Install cowsay
+        run: sudo apt-get update && sudo apt-get install cowsay -y
+
+      - name: Welcome Message with cowsay
+        run: |
+          cowsay "My first GitHub Action!"
+
+      - name: List files
+        run: ls -al
+
+      - name: Read README.md
+        run: cat README.md
