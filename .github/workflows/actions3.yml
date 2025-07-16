@@ -1,47 +1,63 @@
-name: Parallel Cowsay Failure Test
+name: Cowsay Workflow with Artifacts
 
 on: push
 
 jobs:
-  install_and_run:
+  job1_install_and_upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Update apt
-        run: sudo apt-get update
-
       - name: Install cowsay
-        run: sudo apt-get install cowsay -y
-
-      - name: Run cowsay and write to file
-        run: cowsay "Hello from Job 1 🐄" > cowsay.txt
-
-      - name: Show file content
-        run: cat cowsay.txt
-
-  write_file:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for 10 seconds
-        run: sleep 10
-
-      - name: Try to run cowsay (without installing it)
-        run: cowsay "This will fail because cowsay is not installed" > cowsay.txt
-
-      - name: Show file
-        run: cat cowsay.txt
-
-  check_file:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for 10 seconds
-        run: sleep 10
-
-      - name: Check if file exists
         run: |
-          if [ -f cowsay.txt ]; then
-            echo "✅ File exists!"
-            cat cowsay.txt
+          sudo apt-get update
+          sudo apt-get install cowsay -y
+
+      - name: Copy cowsay binary
+        run: |
+          cp $(which cowsay) ./cowsay
+
+      - name: Upload cowsay binary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cowsay-binary
+          path: cowsay
+
+  job2_run_and_save_output:
+    runs-on: ubuntu-latest
+    needs: job1_install_and_upload
+    steps:
+      - name: Download cowsay binary
+        uses: actions/download-artifact@v4
+        with:
+          name: cowsay-binary
+
+      - name: Make binary executable
+        run: chmod +x cowsay
+
+      - name: Run cowsay and save output
+        run: |
+          ./cowsay "Hello from Job 2 🐮" > cowsay_output.txt
+          sleep 10
+
+      - name: Upload cowsay output
+        uses: actions/upload-artifact@v4
+        with:
+          name: cowsay-output
+          path: cowsay_output.txt
+
+  job3_check_and_deploy:
+    runs-on: ubuntu-latest
+    needs: job2_run_and_save_output
+    steps:
+      - name: Download cowsay output
+        uses: actions/download-artifact@v4
+        with:
+          name: cowsay-output
+
+      - name: Check if file exists and deploy
+        run: |
+          if [ -f cowsay_output.txt ]; then
+            echo "✅ Deploying..."
+            cat cowsay_output.txt
           else
-            echo "❌ File does NOT exist!"
+            echo "❌ cowsay_output.txt not found"
             exit 1
-          fi
