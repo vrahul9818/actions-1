@@ -9,15 +9,6 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Install cowsay
-        run: sudo apt-get update && sudo apt-get install cowsay -y
-
-      - name: Welcome Message with cowsay
-        run: |
-          cowsay "My first GitHub Action!"
-
-      - name: List files
-        run: ls -al
-
-      - name: Read README.md
-        run: cat README.md
+      - name: Shell Script Run
+        run: ./ascii-2bd.yml
+     
