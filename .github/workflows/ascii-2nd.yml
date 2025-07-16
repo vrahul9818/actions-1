@@ -10,5 +10,5 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Shell Script Run
-        run: ./ascii-2bd.yml
+        run: ./ascii-2nd.yml
      
