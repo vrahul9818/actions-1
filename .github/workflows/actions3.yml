@@ -1,0 +1,43 @@
+name: Parallel Cowsay Workflow
+
+on: push
+
+jobs:
+  install_cowsay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update apt
+        run: sudo apt-get update
+
+      - name: Install cowsay
+        run: sudo apt-get install cowsay -y
+
+      - name: Confirm installation
+        run: echo "✅ cowsay installed in Job 1"
+
+  run_cowsay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update apt
+        run: sudo apt-get update
+
+      - name: Install cowsay
+        run: sudo apt-get install cowsay -y
+
+      - name: Run cowsay
+        run: cowsay "Hello from Job 2 🐮"
+
+  show_cowsay_binary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update apt
+        run: sudo apt-get update
+
+      - name: Install cowsay
+        run: sudo apt-get install cowsay -y
+
+      - name: Find cowsay path
+        run: which cowsay
+
+      - name: Show binary file info
+        run: file $(which cowsay)
