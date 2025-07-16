@@ -1,9 +1,9 @@
-name: Parallel Cowsay Workflow
+name: Parallel Cowsay Failure Test
 
 on: push
 
 jobs:
-  install_cowsay:
+  install_and_run:
     runs-on: ubuntu-latest
     steps:
       - name: Update apt
@@ -12,32 +12,36 @@ jobs:
       - name: Install cowsay
         run: sudo apt-get install cowsay -y
 
-      - name: Confirm installation
-        run: echo "✅ cowsay installed in Job 1"
+      - name: Run cowsay and write to file
+        run: cowsay "Hello from Job 1 🐄" > cowsay.txt
 
-  run_cowsay:
+      - name: Show file content
+        run: cat cowsay.txt
+
+  write_file:
     runs-on: ubuntu-latest
     steps:
-      - name: Update apt
-        run: sudo apt-get update
+      - name: Wait for 10 seconds
+        run: sleep 10
 
-      - name: Install cowsay
-        run: sudo apt-get install cowsay -y
+      - name: Try to run cowsay (without installing it)
+        run: cowsay "This will fail because cowsay is not installed" > cowsay.txt
 
-      - name: Run cowsay
-        run: cowsay "Hello from Job 2 🐮"
+      - name: Show file
+        run: cat cowsay.txt
 
-  show_cowsay_binary:
+  check_file:
     runs-on: ubuntu-latest
     steps:
-      - name: Update apt
-        run: sudo apt-get update
+      - name: Wait for 10 seconds
+        run: sleep 10
 
-      - name: Install cowsay
-        run: sudo apt-get install cowsay -y
-
-      - name: Find cowsay path
-        run: which cowsay
-
-      - name: Show binary file info
-        run: file $(which cowsay)
+      - name: Check if file exists
+        run: |
+          if [ -f cowsay.txt ]; then
+            echo "✅ File exists!"
+            cat cowsay.txt
+          else
+            echo "❌ File does NOT exist!"
+            exit 1
+          fi
